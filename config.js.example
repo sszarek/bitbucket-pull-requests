@@ -1,0 +1,7 @@
+module.exports = {
+    BITBUCKET: {
+        LOGIN: 'login',
+        PASSWORD: 'password'
+    }
+};
+    
