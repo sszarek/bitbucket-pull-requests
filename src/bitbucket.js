@@ -14,32 +14,44 @@ module.exports = function bitbucketFactory(credentials, repositories) {
         },
 
         getPullRequests(req, res, next) {
-            getRepositoryPullRequests(repositories[0], function(err, r, body) {
+            async.map(repositories, getRepositoryPullRequests, function(err, results) {
                 if (err) {
-                    return next(err);
+                    return res.send(500, err);
                 }
 
-                let json = null;
-                try {
-                    json = JSON.parse(body);
-                } catch (err) {
-                    return next(err);
-                }
-
-                const response = json.values.map(function(pullRequest) {
-                    return {
-                        title: pullRequest.title,
-                        link: pullRequest.links.html.href
-                    };
-                });
-                res.send(response);
-                return next();        
+                res.send(results);
+                return next();
             });
         }
     };
 
     function getRepositoryPullRequests(repository, callback) {
-        makeRequest(`https://bitbucket.org/api/2.0/repositories/${repository.owner}/${repository.name}/pullrequests?state=OPEN`, callback);
+        makeRequest(`https://bitbucket.org/api/2.0/repositories/${repository.owner}/${repository.name}/pullrequests?state=OPEN`, function(err, response, body) {
+            if (err) {
+                return callback(err);
+            }
+
+            if (response.statusCode !== 200) {
+                return callback(new Error(`Error while requesting pull request. Http status code: ${response.statusCode}`));
+            }
+
+            let json = null;
+            try {
+                json = JSON.parse(body);
+            } catch (err) {
+                return callback(err);
+            }
+
+            callback(null, {
+                repository: repository.name,
+                pullRequests: json.values.map(function(pullRequest) {
+                    return {
+                        title: pullRequest.title,
+                        link: pullRequest.links.html.href
+                    };
+                })
+            });
+        });
     }
 
     function makeRequest(url, callback) {
