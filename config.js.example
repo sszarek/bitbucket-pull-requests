@@ -1,11 +1,14 @@
 module.exports = {
     PORT: 8080,
-    BITBUCKET: {
+    BITBUCKET_CREDENTIALS: {
         LOGIN: 'login',
         PASSWORD: 'password'
     },
     REPOSITORIES: [
-        'list of repositories to watch'
+        {
+            owner: '',
+            name: ''
+        }
     ]
 };
     
