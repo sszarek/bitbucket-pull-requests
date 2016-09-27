@@ -17,6 +17,7 @@
   },
   "homepage": "https://github.com/sszarek/bitbucket-pull-requests#readme",
   "dependencies": {
-    "request": "^2.75.0"
+    "request": "^2.75.0",
+    "restify": "^4.1.1"
   }
 }
