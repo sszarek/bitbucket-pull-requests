@@ -8,19 +8,17 @@ module.exports = function bitbucketFactory(credentials, repositories) {
     repositories = repositories || [];
 
     return {
-        getRepositories(req, res, next) {
-            res.send(repositories);
-            return next();
+        getRepositories(cb) {
+            cb(null, repositories);
         },
 
-        getPullRequests(req, res, next) {
+        getPullRequests(cb) {
             async.map(repositories, getRepositoryPullRequests, function(err, results) {
                 if (err) {
-                    return res.send(500, err);
+                    return cb(err);
                 }
 
-                res.send(results);
-                return next();
+                return cb(null, results);
             });
         }
     };
