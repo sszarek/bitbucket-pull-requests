@@ -53,8 +53,8 @@ function sendPullRequests(results, callback) {
             }
 
             cb(null);
-        }, callback);
-    });
+        });
+    }, callback);
 }
 
 function wait(results, callback) {
