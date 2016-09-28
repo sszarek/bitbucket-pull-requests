@@ -27,6 +27,10 @@ function sendPullRequests(results, callback) {
     }
 
     async.each(pullRequests, function(pullRequestsForRepository, cb) {
+        if (pullRequestsForRepository.pullRequests.length === 0) {
+            return cb(null);
+        }
+
         const payload = {
             channel: channel,
             text: `*${pullRequestsForRepository.repository}* has *${pullRequestsForRepository.pullRequests.length}* waiting pull request(s)`,
