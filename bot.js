@@ -29,7 +29,7 @@ function sendPullRequests(results, callback) {
     async.each(pullRequests, function(pullRequestsForRepository, cb) {
         const payload = {
             channel: channel,
-            text: `${pullRequestsForRepository.repository} has ${pullRequestsForRepository.pullRequests.length} waiting pull request(s)`,
+            text: `*${pullRequestsForRepository.repository}* has *${pullRequestsForRepository.pullRequests.length}* waiting pull request(s)`,
             attachments: pullRequestsForRepository.pullRequests.map(pr => {
                 return {
                     title: pr.title,
