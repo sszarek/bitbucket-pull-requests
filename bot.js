@@ -1,35 +1,74 @@
 'use strict';
 
-const RtmClient = require('@slack/client').RtmClient;
-const CLIENT_EVENTS = require('@slack/client').CLIENT_EVENTS;
-const RTM_EVENTS = require('@slack/client').RTM_EVENTS;
+const async = require('async');
+const request = require('request');
+const bunyan = require('bunyan');
+const logger = bunyan.createLogger({
+    name: 'slack-bot',
+    stream: process.stdout
+});
 const configuration = require('./config.js');
 const bitbucket = require('./src/bitbucket.js')(configuration.BITBUCKET_CREDENTIALS, configuration.REPOSITORIES);
+const webhookUrl = configuration.SLACK.WEBHOOK_URL;
+const channel = configuration.SLACK.CHANNEL;
+const updateInterval = configuration.UPDATE_INTERVAL_SECS * 1000;
 
-const token = configuration.SLACK_API_TOKEN || '';
+function getPullRequests(callback) {
+    logger.info('getPullRequests');
+    bitbucket.getPullRequests(callback);            
+}
 
-const rtm = new RtmClient(token, {logLevel: 'warning'});
-rtm.start();
-rtm.on(CLIENT_EVENTS.RTM.AUTHENTICATED, function (rtmStartData) {
-    console.log(`Logged in as ${rtmStartData.self.name} of team ${rtmStartData.team.name}, but not yet connected to a channel`);
-});
+function sendPullRequests(results, callback) {
+    const pullRequests = results.getPullRequests;
+    logger.info('sendPullRequests', pullRequests);
 
-rtm.on(RTM_EVENTS.MESSAGE, function(message) {
-    const user = rtm.dataStore.getUserById(message.user);
-    const dm = rtm.dataStore.getDMByName(user.name);
+    if (pullRequests.length === 0) {
+        return callback(null);
+    }
 
-    bitbucket.getPullRequests(function(err, results) {
-        if (err) {
-            return console.log(err);
-        }
+    async.each(pullRequests, function(pullRequestsForRepository, cb) {
+        const payload = {
+            channel: channel,
+            text: `${pullRequestsForRepository.repository} has ${pullRequestsForRepository.pullRequests.length} waiting pull request(s)`,
+            attachments: pullRequestsForRepository.pullRequests.map(pr => {
+                return {
+                    title: pr.title,
+                    title_link: pr.link,
+                    color: 'warning'
+                };
+            })
+        };
 
-        if (results.length > 0) {
-            rtm.sendMessage('Pull requests waiting!!', dm.id);
-            results.forEach(pullRequest => {
-                rtm.sendMessage(`${pullRequest.repository} has ${pullRequest.pullRequests.length} pull request(s) waiting`, dm.id);
-            });
-        } else {
-            rtm.sendMessage('Yay! No waiting pull requests!', dm.id);
-        }
+        request.post({
+            url: webhookUrl,
+            json: payload
+        }, function(err, response) {
+            if (err) {
+                return cb(err);
+            }
+
+            if (response.statusCode !== 200) {
+                logger.error(response);
+                return cb(new Error('Error while sending message to the channel'));
+            }
+
+            cb(null);
+        }, callback);
     });
+}
+
+function wait(results, callback) {
+    setTimeout(callback, updateInterval);
+}
+
+logger.info('Starting bitbucket polling...', configuration.REPOSITORIES);
+async.forever(function(next) {
+    async.auto({
+        getPullRequests: getPullRequests,
+        sendPullRequests: ['getPullRequests', sendPullRequests],
+        wait: ['sendPullRequests', wait] 
+    }, next);
+}, function(err) {
+    logger.error('Error occured while refreshing', err);
+    return process.exit(1);
 });

@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start-server": "node server.js | bunyan", 
+    "start-server": "node server.js | bunyan",
+    "start-bot": "node bot.js | bunyan",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -18,7 +19,6 @@
   },
   "homepage": "https://github.com/sszarek/bitbucket-pull-requests#readme",
   "dependencies": {
-    "@slack/client": "^3.6.0",
     "async": "^2.0.1",
     "bunyan": "^1.8.1",
     "request": "^2.75.0",

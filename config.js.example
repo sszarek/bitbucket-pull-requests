@@ -1,6 +1,10 @@
 module.exports = {
     PORT: 8080,
-    SLACK_API_TOKEN: '',
+    UPDATE_INTERVAL_SECS: 60,
+    SLACK: {
+        CHANNEL: 'some channel',
+        WEBHOOK_URL: ''
+    },
     BITBUCKET_CREDENTIALS: {
         LOGIN: 'login',
         PASSWORD: 'password'
