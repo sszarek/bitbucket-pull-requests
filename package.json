@@ -4,6 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "start-server": "node server.js | bunyan", 
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -19,6 +20,7 @@
   "dependencies": {
     "@slack/client": "^3.6.0",
     "async": "^2.0.1",
+    "bunyan": "^1.8.1",
     "request": "^2.75.0",
     "restify": "^4.1.1"
   }
