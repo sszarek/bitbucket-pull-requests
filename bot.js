@@ -40,8 +40,7 @@ function sendPullRequests(results, callback) {
             text: `*${pullRequestsForRepository.repository}* has *${pullRequestsForRepository.pullRequests.length}* waiting pull request(s)`,
             attachments: pullRequestsForRepository.pullRequests.map(pr => {
                 return {
-                    title: pr.title,
-                    title_link: pr.link,
+                    title: `<${pr.link}|${pr.title}> -> ${pr.destination}`,
                     color: 'warning'
                 };
             })

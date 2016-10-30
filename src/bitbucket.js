@@ -45,7 +45,9 @@ module.exports = function bitbucketFactory(credentials, repositories) {
                 pullRequests: json.values.map(function(pullRequest) {
                     return {
                         title: pullRequest.title,
-                        link: pullRequest.links.html.href
+                        link: pullRequest.links.html.href,
+                        destination: pullRequest.destination.branch.name,
+                        updatedOn: pullRequest.updated_on
                     };
                 })
             });
