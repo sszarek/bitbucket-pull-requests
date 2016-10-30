@@ -1,5 +1,6 @@
 'use strict';
 
+const moment = require('moment');
 const HOUR_FORMAT = 'HH:mm';
 
 module.exports.isWeekend = function isWeekend(date) {

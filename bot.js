@@ -85,7 +85,7 @@ function shouldPerformUpdate() {
 logger.info('Starting bitbucket polling...', configuration.REPOSITORIES);
 async.forever(function(next) {
     if (!shouldPerformUpdate()) {
-        wait(null, next);
+        return wait(null, next);
     }
 
     async.auto({
