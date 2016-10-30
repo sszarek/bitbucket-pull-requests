@@ -2,16 +2,20 @@
 
 const async = require('async');
 const request = require('request');
+const moment = require('moment');
 const bunyan = require('bunyan');
 const logger = bunyan.createLogger({
     name: 'slack-bot',
     stream: process.stdout
 });
 const configuration = require('./config.js');
+const utils = require('./src/utils.js');
 const bitbucket = require('./src/bitbucket.js')(configuration.BITBUCKET_CREDENTIALS, configuration.REPOSITORIES);
 const webhookUrl = configuration.SLACK.WEBHOOK_URL;
 const channel = configuration.SLACK.CHANNEL;
 const updateInterval = configuration.UPDATE_INTERVAL_SECS * 1000;
+const workhours = configuration.WORKHOURS;
+const onlyWorkdays = configuration.ONLY_WORKDAYS;
 
 function getPullRequests(callback) {
     logger.info('getPullRequests');
@@ -65,8 +69,21 @@ function wait(results, callback) {
     setTimeout(callback, updateInterval);
 }
 
+function checkWeekdayUpdate(date) {
+    return onlyWorkdays ? !utils.isWeekend(date) : true;
+}
+
+function shouldPerformUpdate() {
+    const now = moment();
+    return checkWeekdayUpdate(now);
+}
+
 logger.info('Starting bitbucket polling...', configuration.REPOSITORIES);
 async.forever(function(next) {
+    if (!shouldPerformUpdate()) {
+        wait(null, next);
+    }
+
     async.auto({
         getPullRequests: getPullRequests,
         sendPullRequests: ['getPullRequests', sendPullRequests],

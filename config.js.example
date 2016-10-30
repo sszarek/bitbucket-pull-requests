@@ -1,6 +1,11 @@
 module.exports = {
     PORT: 8080,
     UPDATE_INTERVAL_SECS: 60,
+    WORKHOURS: {
+        FROM: '08:00',
+        TO: '16:00'
+    },
+    ONLY_WORKDAYS: true,
     SLACK: {
         CHANNEL: 'some channel',
         WEBHOOK_URL: ''
