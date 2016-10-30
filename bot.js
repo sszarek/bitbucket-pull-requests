@@ -69,13 +69,13 @@ function wait(results, callback) {
     setTimeout(callback, updateInterval);
 }
 
-function checkWeekdayUpdate(date) {
+function checkWorkdayUpdate(date) {
     return onlyWorkdays ? !utils.isWeekend(date) : true;
 }
 
 function shouldPerformUpdate() {
     const now = moment();
-    return checkWeekdayUpdate(now);
+    return checkWorkdayUpdate(now);
 }
 
 logger.info('Starting bitbucket polling...', configuration.REPOSITORIES);
