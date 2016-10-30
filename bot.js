@@ -73,9 +73,13 @@ function checkWorkdayUpdate(date) {
     return onlyWorkdays ? !utils.isWeekend(date) : true;
 }
 
+function checkWorkhoursUpdate(date) {
+    return workhours ? utils.isBetweenHours(date, workhours.FROM, workhours.TO) : true;
+}
+
 function shouldPerformUpdate() {
     const now = moment();
-    return checkWorkdayUpdate(now);
+    return checkWorkdayUpdate(now) && checkWorkhoursUpdate(now);
 }
 
 logger.info('Starting bitbucket polling...', configuration.REPOSITORIES);
